@@ -4,7 +4,7 @@ baseurl: ""
 markdown: kramdown
 highlighter: rouge
 permalink: pretty
-exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
+exclude: ["less","node_modules","Gruntfile.js","package.json","README.md","webpack.config.js", "photostrip.orig.js"]
 
 sass:
   style: compressed
