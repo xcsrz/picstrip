@@ -14,7 +14,7 @@ const draftmaxdim = 1000;
 
 const scaleSrcImage = function(img) {
     // if the pic is already small enough the draft is the full res image
-    if (img.width <= draftmaxdim && img.height <= draftmaxdim)) {
+    if (img.width <= draftmaxdim && img.height <= draftmaxdim) {
         return new Array(img, img.width, img. height)
     }
     if(img.width > img.height) {
@@ -58,7 +58,7 @@ const File = (props, context ) => {
 			props.add({
 				name: event.target.files[i].name,
 				image: img,
-                draft: ,
+                draft: img,
 			})
 		}
 	}
