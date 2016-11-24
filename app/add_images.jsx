@@ -39,7 +39,7 @@ const AddImages = (props, context ) => {
           }} multiple onChange={ addpics } />
       </FlatButton>
     ]
-    let inststr = (context.images.length > 0) ? "Paste an image or URL." : "To start off paste an image or URL of an image here."
+    let inststr = (context.images.length > 0) ? "Paste an image." : "To start off paste an image here."
     return (
         <Dialog
           title="Add Images"

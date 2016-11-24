@@ -1,5 +1,6 @@
 import React from 'react'
 import RaisedButton from 'material-ui/RaisedButton';
+import Chip from 'material-ui/Chip';
 
 
 const picmaxdim = 1000
@@ -90,7 +91,13 @@ class Display extends React.Component {
             // <canvas ref="canvas" width={500} height={500}/>
         return (
             <div style={{textAlign: "center"}}>
-                <img ref="display" style={{maxWidth: "100%"}} />
+                {(() => {
+                    if(this.props.settings.images.length > 0) {
+                        return <img ref="display" style={{maxWidth: "100%"}} />
+                    } else {
+                        return <p style={{margin: "3em"}}><em> You need to add images.  Click on <Chip style={{display: "inline-block", margin: '0em', padding: '0em'}}> IMAGES </Chip> button above.</em></p>
+                    }
+                })()}
             </div>
         )
     }
