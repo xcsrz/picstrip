@@ -12,7 +12,7 @@ class ImagePaster extends React.Component {
         this.ctrl_pressed = null
         this.paste_mode = null
 
-        if (!window.Clipboard) {
+        if (window.Clipboard) {
 
             this.pasteCatcher = document.createElement("div");
             this.pasteCatcher.setAttribute("id", "paste_ff");
@@ -22,6 +22,7 @@ class ImagePaster extends React.Component {
             this.pasteCatcher.style.width = "10px";
             document.body.appendChild(this.pasteCatcher);
             document.getElementById('paste_ff').addEventListener('DOMSubtreeModified', () => {
+                console.log(">>>", this.pasteCatcher.innerHTML)
                 if (this.paste_mode == 'auto' || this.ctrl_pressed == false)
                     return true;
                 //if paste handle failed - capture pasted object manually
@@ -115,31 +116,10 @@ class ImagePaster extends React.Component {
     paste_createImage(source) {
         this.context.addFile("Pasted Image " + ++pasteCount, source)
         return
-
-
-        // let canvas = this.refs.canvas
-        // let ctx = canvas.getContext("2d")
-        // let autoresize = true
-        // var pastedImage = new Image()
-        // pastedImage.onload = () => {
-        //     if(autoresize == true){
-        //         //resize canvas
-        //         canvas.width = pastedImage.width;
-        //         canvas.height = pastedImage.height;
-        //     }
-        //     else{
-        //         //clear canvas
-        //         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        //     }
-        //     ctx.drawImage(pastedImage, 0, 0);
-        // };
-        // pastedImage.src = source;
     }
 
     render() {
-        return (
-            <canvas ref="canvas" style={{border: "1px solid grey"}} id="my_canvas" width="300" height="300"></canvas>
-        )
+        return null
     }
 }
 

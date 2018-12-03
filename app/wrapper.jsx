@@ -23,16 +23,23 @@ import MarginMenu from './margin_menu'
 import DirectionMenu from './direction_menu'
 import AppBarButton from './app_bar_button'
 
+import IconSave from 'material-ui/svg-icons/content/save';
+
+
 const Wrapper = (props, context ) => {
     return (
         <MuiThemeProvider muiTheme={getMuiTheme(MyTheme)}>
             <Paper>
-                <AppBar title="Photo Strip" showMenuIconButton={false}>
+                <AppBar title="Foto Strip Generator" showMenuIconButton={false}>
                     <DirectionMenu />
                     <ImagesMenu images={props.images} />
                     <MarginMenu />
                     <AppBarButton>
-                      <RaisedButton label="Save Image" onClick={context.saveImage} />
+                      <RaisedButton
+                          label="Save Image"
+                          onClick={context.saveImage} 
+                          icon={<IconSave/>}
+                          />
                     </AppBarButton>
                 </AppBar>
                 { props.children }

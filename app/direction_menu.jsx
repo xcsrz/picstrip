@@ -8,6 +8,8 @@ import Badge from 'material-ui/Badge';
 
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 
+import IconTransform from 'material-ui/svg-icons/image/transform';
+
 import AppBarButton from './app_bar_button'
 
 const Directions = (props, context) => {
@@ -27,6 +29,7 @@ const Directions = (props, context) => {
         label={label}
         labelPosition="before"
         onClick={swapDirection}
+        icon={<IconTransform />}
       />
     </AppBarButton>
   )

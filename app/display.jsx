@@ -20,6 +20,9 @@ class Display extends React.Component {
     }
 
     updateCanvas() {
+        if(this.props.settings.images.length == 0) {
+            return
+        }
         let widths = [], heights = []
         this.props.settings.images.forEach((img, idx)=>{
             if (!img.image.hasAttribute('rel') || img.image.getAttribute('rel') != 'loaded') {
@@ -75,25 +78,15 @@ class Display extends React.Component {
             ctx.drawImage(img.image, img.x, img.y, img.w, img.h)
         })
 
-        // let x = this.props.settings.margin, y = this.props.settings.margin
-        // this.props.settings.images.forEach((img, idx)=>{
-        //     ctx.drawImage(img.image, x, y, 200, 200)
-        //     if(this.props.settings.direction == 'vertical') {
-        //         y += 200 + this.props.settings.margin
-        //     } else if (this.props.settings.direction == 'horizontal') {
-        //         x += 200 + this.props.settings.margin
-        //     }
-        // })
         this.refs.display.src = this.context.canvas.toDataURL('image/png')
     }
 
     render() {
-            // <canvas ref="canvas" width={500} height={500}/>
         return (
             <div style={{textAlign: "center"}}>
                 {(() => {
                     if(this.props.settings.images.length > 0) {
-                        return <img ref="display" style={{maxWidth: "100%"}} />
+                        return <img ref="display" style={{maxWidth: "100%", border: "solid black 1px", margin: "1em"}} />
                     } else {
                         return <p style={{margin: "3em"}}><em> You need to add images.  Click on <Chip style={{display: "inline-block", margin: '0em', padding: '0em'}}> IMAGES </Chip> button above.</em></p>
                     }

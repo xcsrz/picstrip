@@ -1,30 +1,41 @@
 var webpack = require('webpack');
 var path = require('path');
 
+
+// console.log(">>>>>>>>")
+// console.log(path.resolve(__dirname, "js"))
+// console.log(">>>>>>>>")
+
+
 var base_config = {
   resolve: {
-    root: __dirname,
-    extensions: ['', '.js', '.jsx']
+    extensions: ['.js', '.jsx'],
+    // modules: [path.join(__dirname, 'lib')]
   },
   resolveLoader: {
-    root: path.join(__dirname, 'lib')
+    modules: ['node_modules', path.join(__dirname, 'lib')]
+  //   root: path.join(__dirname, 'lib')
   },
   plugins: [
-    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.optimize.OccurrenceOrderPlugin()
   ],
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx$/,
-        loader: 'babel-loader',
         exclude: /node_modules/,
-        query: {
-          presets: ['es2015', 'react']
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
         }
+      },
+      { 
+        test: /\.brfs\.js$/,
+        enforce: 'post',
+        loader: "transform-loader?brfs" 
       }
-    ],
-    postLoaders: [
-      { loader: "transform?brfs" }
     ]
   }
 }
@@ -45,7 +56,22 @@ if(process.env["NODE_ENV"] == "production") {
         })
     )
 } else {
+    base_config.plugins.push(
+        new webpack.DefinePlugin({
+          'process.env': {
+            'NODE_ENV': JSON.stringify('development')
+          }
+        })
+    )
     base_config.devtool = 'inline-source-map'
+    base_config.devServer = {
+      contentBase: path.resolve(__dirname),
+      watchContentBase: true,
+      // hot: true,
+      historyApiFallback: true,
+      publicPath: path.resolve(__dirname, '/js/'),
+      proxy: {}
+    }
 }
 
 
@@ -54,7 +80,8 @@ config = [
     {
       entry: './app/app.jsx',
       output: {
-        path: path.join(__dirname, "js"),
+        path: path.resolve(__dirname, "js"),
+        publicPath: path.resolve(__dirname, '/js/'),
         filename: 'app.js'
       }
     },
