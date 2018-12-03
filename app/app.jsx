@@ -170,10 +170,6 @@ class App extends React.Component {
     }
 
     saveImage(event) {
-        // let dt = canvas.toDataURL('image/png')
-        // dt = dt.replace("image/png", "application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png")
-        // // top.location.href = dt
-        // window.open(dt)
         canvas.toBlob((blob) => {
             saveAs(blob, "" + this.state.images.length + "fotostrip-" + this.state.direction + ".png");
         });
@@ -196,15 +192,6 @@ class App extends React.Component {
     }
 
 }
-
-
-
-// document.writeln('<div id="photo-stitcher-app-container"></div>')
-
-// render(
-//     <App />,
-//     document.getElementById('photo-stitcher-app-container'))
-
 
 window.initiatePhotoStitch = function(ele) {
     render(
