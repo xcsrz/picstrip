@@ -30,7 +30,7 @@ const Wrapper = (props, context ) => {
     return (
         <MuiThemeProvider muiTheme={getMuiTheme(MyTheme)}>
             <Paper>
-                <AppBar title="Foto Strip Generator" showMenuIconButton={false}>
+                <AppBar title="Photo Strip Generator" showMenuIconButton={false}>
                     <DirectionMenu />
                     <ImagesMenu images={props.images} />
                     <MarginMenu />

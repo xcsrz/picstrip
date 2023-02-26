@@ -62,6 +62,7 @@ const AddImages = (props, context ) => {
         // actions={actions}
         modal={false}
         open={props.open}
+        className='strip-generator-add-modal'
         onRequestClose={props.close}
       >
         <h2 style={{textAlign: 'center'}}> There are three options to add image files: </h2>
@@ -79,7 +80,7 @@ const AddImages = (props, context ) => {
         </div>
         <div style={{ width: '30%', float: 'left', textAlign: 'center', marginRight: '4.9%'}}>
           <h4> Drag 'n Drop </h4>
-          <Dropzone onDrop={addPicsFromDrop}
+          <Dropzone id="dropzone-component" onDrop={addPicsFromDrop}
             style={{
               color: props.muiTheme.palette.primary2Color,
               fontSize: '40px',
@@ -107,20 +108,10 @@ const AddImages = (props, context ) => {
                 height: '4em',
                 borderRadius: '0.25em'
               }}
+              onClick={()=>{ document.getElementById('dropzone-component').click() }}
             >
               SELECT <br/>
               FILES
-              <input type="file" style={{
-                  cursor: 'pointer',
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  right: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,
-                }} multiple onChange={ addPicsFromForm } />
             </FlatButton>
           </div>
         </div>

@@ -11,9 +11,10 @@ import Wrapper from './wrapper'
 import Files from './files'
 import Display from './display'
 import AddImages from './add_images'
-import ImagePaster from './image_paster'
+// import ImagePaster from './image_paster'
 
 const canvas = document.createElement('canvas')
+let pastedCount = 0
 
 class App extends React.Component {
 
@@ -59,6 +60,22 @@ class App extends React.Component {
         this.saveImage = this.saveImage.bind(this)
         this.openAddImages = this.openAddImages.bind(this)
         this.closeAddImages = this.closeAddImages.bind(this)
+
+        document.onpaste = (event) => {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            Object.keys(items).forEach((index) => {
+                var item = items[index];
+                if (item.kind === 'file') {
+                    var blob = item.getAsFile();
+                    var reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.addFile(`Pasted Image #${++pastedCount}`, event.target.result)   
+                    }
+                    reader.readAsDataURL(blob);
+                }
+            })
+        }
+
 
     }
 
@@ -171,7 +188,7 @@ class App extends React.Component {
 
     saveImage(event) {
         canvas.toBlob((blob) => {
-            saveAs(blob, "" + this.state.images.length + "fotostrip-" + this.state.direction + ".png");
+            saveAs(blob, "photostrip-" + this.state.direction + "-" + this.state.images.length + ".png");
         });
     }
 
@@ -186,7 +203,6 @@ class App extends React.Component {
             <Wrapper images={this.state.images} >
                 <AddImages open={this.state.imagesDialogOpen} close={this.closeAddImages} />
                 <Display settings={this.state} canvas={canvas} />
-                <ImagePaster/>
             </Wrapper>
             )
     }

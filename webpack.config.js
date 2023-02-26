@@ -1,6 +1,7 @@
-var webpack = require('webpack');
-var path = require('path');
+const webpack = require('webpack');
+const path = require('path');
 
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 // console.log(">>>>>>>>")
 // console.log(path.resolve(__dirname, "js"))
@@ -48,13 +49,9 @@ if(process.env["NODE_ENV"] == "production") {
           }
         })
     )
-    base_config.plugins.push(
-        new webpack.optimize.UglifyJsPlugin({
-          compressor: {
-            warnings: false
-          }
-        })
-    )
+    base_config.optimization = {
+        minimizer: [new UglifyJsPlugin()]
+    }
 } else {
     base_config.plugins.push(
         new webpack.DefinePlugin({
