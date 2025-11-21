@@ -1,8 +1,7 @@
-const webpack = require('webpack');
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 
-var base_config = {
+const baseConfig = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   resolve: {
     extensions: ['.js', '.vue', '.json']
@@ -35,57 +34,43 @@ var base_config = {
           'vue-style-loader',
           'css-loader'
         ]
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf|svg)$/i,
+        type: 'asset/resource'
       }
     ]
   }
 }
 
-if(process.env["NODE_ENV"] == "production") {
-    base_config.plugins.push(
-        new webpack.DefinePlugin({
-          'process.env': {
-            'NODE_ENV': JSON.stringify('production')
-          }
-        })
-    )
-    // Webpack 5 uses terser by default, no need for uglifyjs-webpack-plugin
-    base_config.optimization = {
-        minimize: true
-    }
+if (process.env.NODE_ENV === 'production') {
+  // Webpack 5 uses terser by default for minification
+  baseConfig.optimization = {
+    minimize: true
+  }
 } else {
-    base_config.plugins.push(
-        new webpack.DefinePlugin({
-          'process.env': {
-            'NODE_ENV': JSON.stringify('development')
-          }
-        })
-    )
-    base_config.devtool = 'inline-source-map'
-    base_config.devServer = {
-      static: {
-        directory: path.resolve(__dirname)
-      },
-      watchFiles: ['**/*'],
-      historyApiFallback: true,
-      devMiddleware: {
-        publicPath: '/js/'
-      }
+  baseConfig.devtool = 'inline-source-map'
+  baseConfig.devServer = {
+    static: {
+      directory: path.resolve(__dirname)
+    },
+    watchFiles: ['**/*'],
+    historyApiFallback: true,
+    devMiddleware: {
+      publicPath: '/js/'
     }
+  }
 }
 
-
-config = [
-  Object.assign(
-    {
-      entry: './js/main.js',
-      output: {
-        path: path.resolve(__dirname, "js"),
-        publicPath: path.resolve(__dirname, '/js/'),
-        filename: 'app.js'
-      }
-    },
-    base_config
-  ),
-]
+const config = {
+  ...baseConfig,
+  entry: './js/main.js',
+  output: {
+    path: path.resolve(__dirname, 'js'),
+    publicPath: '/js/',
+    filename: 'app.js',
+    clean: true
+  }
+}
 
 module.exports = config

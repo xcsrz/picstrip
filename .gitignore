@@ -1,6 +1,20 @@
-.sass-cache
-_site
+# Dependencies
 node_modules
+
+# Build output
+js/app.js
+
+# Legacy files (keeping for reference but not needed)
 *.orig.js
 *.png
-js/app.js
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
