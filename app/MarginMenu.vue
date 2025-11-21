@@ -1,86 +1,86 @@
 <template>
   <div class="menu-button-container">
-    <button class="menu-button" @click="toggleMenu">
+    <button class="menu-button" @click="toggleMenu" ref="buttonRef">
       <span class="badge" :style="badgeStyle">{{ margin }}</span>
       Margin
     </button>
-    <div v-if="menuOpen" class="popover" :style="popoverStyle" @click.stop>
-      <div class="popover-content">
-        <div class="slider-container">
-          <label>Margin: {{ margin }}px</label>
-          <input 
-            type="range" 
-            :value="margin" 
-            min="0" 
-            max="50" 
-            step="1"
-            @input="handleMarginChange"
-            class="slider"
-          />
-        </div>
-        <div class="color-picker-container">
-          <label>Background Color:</label>
-          <div class="color-picker">
+    <Teleport to="body">
+      <div v-if="menuOpen" class="popover-backdrop" @click="closeMenu"></div>
+      <div v-if="menuOpen" class="popover" :style="popoverStyle" @click.stop>
+        <div class="popover-content">
+          <div class="slider-container">
+            <label>Margin: {{ margin }}px</label>
             <input 
-              type="color" 
-              :value="color" 
-              @input="handleColorChange"
-              class="color-input"
+              type="range" 
+              :value="margin" 
+              min="0" 
+              max="50" 
+              step="1"
+              @input="handleMarginChange"
+              class="slider"
             />
-            <input 
-              type="text" 
-              :value="color" 
-              @input="handleColorTextChange"
-              class="color-text-input"
-              placeholder="#ffffff"
-            />
+          </div>
+          <div class="color-picker-container">
+            <label>Background Color:</label>
+            <div class="color-picker">
+              <input 
+                type="color" 
+                :value="color" 
+                @input="handleColorChange"
+                class="color-input"
+              />
+              <input 
+                type="text" 
+                :value="color" 
+                @input="handleColorTextChange"
+                class="color-text-input"
+                placeholder="#ffffff"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div v-if="menuOpen" class="popover-backdrop" @click="closeMenu"></div>
+    </Teleport>
   </div>
 </template>
 
 <script>
-import { ref, computed, inject, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
+import { Teleport } from 'vue'
+import { usePhotostripStore } from './composables/usePhotostripStore'
+import { useColorUtils } from './composables/useColorUtils'
+import { useClickOutside } from './composables/useClickOutside'
 
 export default {
   name: 'MarginMenu',
+  components: {
+    Teleport
+  },
   setup() {
     const menuOpen = ref(false)
-    const anchorEl = ref(null)
+    const buttonRef = ref(null)
     const popoverStyle = ref({})
-    const margin = inject('margin')
-    const color = inject('color')
-    const setMargin = inject('setMargin')
-    const setColor = inject('setColor')
+    
+    const {
+      margin,
+      color,
+      setMargin,
+      setColor
+    } = usePhotostripStore()
 
-    const darkColor = (colorHex) => {
-      const codes = {
-        '0': 1, '1': 2, '2': 3, '3': 4, '4': 5, '5': 6,
-        '6': 7, '7': 8, '8': 9, '9': 10,
-        'a': 11, 'b': 12, 'c': 13, 'd': 14, 'e': 15, 'f': 16
-      }
-      let val = 0
-      for (let i = 1; i < 6; i += 2) {
-        val += (codes[colorHex[i].toLowerCase()] || 0) * (codes[colorHex[i + 1].toLowerCase()] || 0)
-      }
-      return val < (255 * 3) / 2
-    }
+    const { isDarkColor, isValidHexColor } = useColorUtils()
 
     const badgeStyle = computed(() => {
       return {
         backgroundColor: color.value,
-        color: darkColor(color.value) ? 'white' : 'black'
+        color: isDarkColor(color.value) ? 'white' : 'black'
       }
     })
 
     const toggleMenu = (event) => {
       event.preventDefault()
       if (!menuOpen.value) {
-        anchorEl.value = event.currentTarget
-        const rect = anchorEl.value.getBoundingClientRect()
+        const rect = event.currentTarget.getBoundingClientRect()
         popoverStyle.value = {
           position: 'fixed',
           right: `${window.innerWidth - rect.right}px`,
@@ -96,7 +96,7 @@ export default {
     }
 
     const handleMarginChange = (event) => {
-      setMargin(parseInt(event.target.value))
+      setMargin(parseInt(event.target.value, 10))
     }
 
     const handleColorChange = (event) => {
@@ -105,30 +105,16 @@ export default {
 
     const handleColorTextChange = (event) => {
       const value = event.target.value
-      if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+      if (isValidHexColor(value)) {
         setColor(value)
       }
     }
 
-    const handleClickOutside = (event) => {
-      if (menuOpen.value && anchorEl.value && !anchorEl.value.contains(event.target)) {
-        const popover = event.target.closest('.popover')
-        if (!popover) {
-          closeMenu()
-        }
-      }
-    }
-
-    onMounted(() => {
-      document.addEventListener('click', handleClickOutside)
-    })
-
-    onUnmounted(() => {
-      document.removeEventListener('click', handleClickOutside)
-    })
+    useClickOutside(buttonRef, closeMenu)
 
     return {
       menuOpen,
+      buttonRef,
       popoverStyle,
       margin,
       color,
@@ -262,4 +248,3 @@ export default {
   font-family: monospace;
 }
 </style>
-

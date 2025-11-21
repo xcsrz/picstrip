@@ -1,93 +1,98 @@
 <template>
   <div class="menu-button-container">
-    <button class="menu-button" @click="toggleMenu">
+    <button class="menu-button" @click="toggleMenu" ref="buttonRef">
       <span class="badge">{{ images.length }}</span>
       Images
     </button>
-    <div v-if="menuOpen" class="popover" :style="popoverStyle" @click.stop>
-      <div class="menu">
-        <div 
-          v-for="(img, idx) in images" 
-          :key="'image-' + idx"
-          class="menu-item"
-        >
-          <span class="menu-item-text">{{ img.name }}</span>
-          <div class="menu-item-actions">
-            <button 
-              v-if="idx > 0"
-              class="action-button"
-              @click="moveFile(idx, -1)"
-              title="Move Up"
-            >
-              ↑
-            </button>
-            <button 
-              v-if="idx < images.length - 1"
-              class="action-button"
-              @click="moveFile(idx, 1)"
-              title="Move Down"
-            >
-              ↓
-            </button>
-            <button 
-              class="action-button rotate-left"
-              @click="rotateImage(idx, -90)"
-              title="Rotate Left"
-            >
-              ↶
-            </button>
-            <button 
-              class="action-button rotate-right"
-              @click="rotateImage(idx, 90)"
-              title="Rotate Right"
-            >
-              ↷
-            </button>
-            <button 
-              class="action-button delete"
-              @click="removeFile(idx)"
-              title="Delete"
-            >
-              ×
-            </button>
+    <Teleport to="body">
+      <div v-if="menuOpen" class="popover-backdrop" @click="closeMenu"></div>
+      <div v-if="menuOpen" class="popover" :style="popoverStyle" @click.stop>
+        <div class="menu">
+          <div 
+            v-for="(img, idx) in images" 
+            :key="`image-${idx}`"
+            class="menu-item"
+          >
+            <span class="menu-item-text">{{ img.name }}</span>
+            <div class="menu-item-actions">
+              <button 
+                v-if="idx > 0"
+                class="action-button"
+                @click="moveFile(idx, -1)"
+                title="Move Up"
+              >
+                ↑
+              </button>
+              <button 
+                v-if="idx < images.length - 1"
+                class="action-button"
+                @click="moveFile(idx, 1)"
+                title="Move Down"
+              >
+                ↓
+              </button>
+              <button 
+                class="action-button rotate-left"
+                @click="rotateImage(idx, -90)"
+                title="Rotate Left"
+              >
+                ↶
+              </button>
+              <button 
+                class="action-button rotate-right"
+                @click="rotateImage(idx, 90)"
+                title="Rotate Right"
+              >
+                ↷
+              </button>
+              <button 
+                class="action-button delete"
+                @click="removeFile(idx)"
+                title="Delete"
+              >
+                ×
+              </button>
+            </div>
           </div>
+          <div v-if="images.length > 0" class="menu-divider"></div>
+          <button class="menu-item add-button" @click.stop="handleAddImages">
+            <span>+</span>
+            Add Images
+          </button>
         </div>
-        <div v-if="images.length > 0" class="menu-divider"></div>
-        <button class="menu-item add-button" @click="handleAddImages">
-          <span>+</span>
-          Add Images
-        </button>
       </div>
-    </div>
-    <div v-if="menuOpen" class="popover-backdrop" @click="closeMenu"></div>
+    </Teleport>
   </div>
 </template>
 
 <script>
-import { ref, inject, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
+import { Teleport } from 'vue'
+import { usePhotostripStore } from './composables/usePhotostripStore'
+import { useClickOutside } from './composables/useClickOutside'
 
 export default {
   name: 'ImagesMenu',
-  props: {
-    images: {
-      type: Array,
-      required: true
-    }
+  components: {
+    Teleport
   },
   setup() {
     const menuOpen = ref(false)
-    const anchorEl = ref(null)
+    const buttonRef = ref(null)
     const popoverStyle = ref({})
-    const openAddImages = inject('openAddImages')
-    const moveFile = inject('moveFile')
-    const removeFile = inject('removeFile')
-    const rotateImage = inject('rotateImage')
+    
+    const {
+      images,
+      openAddImages,
+      moveFile,
+      removeFile,
+      rotateImage
+    } = usePhotostripStore()
 
     const toggleMenu = (event) => {
       event.preventDefault()
       if (!menuOpen.value) {
-        anchorEl.value = event.currentTarget
-        const rect = anchorEl.value.getBoundingClientRect()
+        const rect = event.currentTarget.getBoundingClientRect()
         popoverStyle.value = {
           position: 'fixed',
           left: `${rect.left}px`,
@@ -102,31 +107,22 @@ export default {
       menuOpen.value = false
     }
 
-    const handleAddImages = () => {
+    const handleAddImages = (event) => {
+      event?.stopPropagation()
       closeMenu()
-      openAddImages()
+      // Use nextTick to ensure menu closes before opening modal
+      setTimeout(() => {
+        openAddImages()
+      }, 0)
     }
 
-    const handleClickOutside = (event) => {
-      if (menuOpen.value && anchorEl.value && !anchorEl.value.contains(event.target)) {
-        const popover = event.target.closest('.popover')
-        if (!popover) {
-          closeMenu()
-        }
-      }
-    }
-
-    onMounted(() => {
-      document.addEventListener('click', handleClickOutside)
-    })
-
-    onUnmounted(() => {
-      document.removeEventListener('click', handleClickOutside)
-    })
+    useClickOutside(buttonRef, closeMenu)
 
     return {
       menuOpen,
+      buttonRef,
       popoverStyle,
+      images,
       toggleMenu,
       closeMenu,
       handleAddImages,
@@ -258,4 +254,3 @@ export default {
   margin: 0.5em 0;
 }
 </style>
-

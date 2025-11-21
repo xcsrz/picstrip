@@ -4,7 +4,7 @@
       <h1 class="app-bar-title">Photostrip Generator</h1>
       <div class="app-bar-actions">
         <DirectionMenu />
-        <ImagesMenu :images="images" />
+        <ImagesMenu />
         <MarginMenu />
         <button class="save-button" @click="saveImage">
           <span class="save-icon">💾</span>
@@ -19,10 +19,10 @@
 </template>
 
 <script>
-import { inject } from 'vue'
 import DirectionMenu from './DirectionMenu.vue'
 import ImagesMenu from './ImagesMenu.vue'
 import MarginMenu from './MarginMenu.vue'
+import { usePhotostripStore } from './composables/usePhotostripStore'
 
 export default {
   name: 'Wrapper',
@@ -32,8 +32,7 @@ export default {
     MarginMenu
   },
   setup() {
-    const images = inject('images')
-    const saveImage = inject('saveImage')
+    const { images, saveImage } = usePhotostripStore()
 
     return {
       images,
@@ -101,4 +100,3 @@ export default {
   padding: 1em;
 }
 </style>
-

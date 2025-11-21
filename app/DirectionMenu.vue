@@ -8,24 +8,20 @@
 </template>
 
 <script>
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
+import { usePhotostripStore } from './composables/usePhotostripStore'
 
 export default {
   name: 'DirectionMenu',
   setup() {
-    const direction = inject('direction')
-    const setDirection = inject('setDirection')
+    const { direction, setDirection } = usePhotostripStore()
 
     const label = computed(() => {
       return direction.value.charAt(0).toUpperCase() + direction.value.slice(1)
     })
 
     const swapDirection = () => {
-      if (direction.value === 'vertical') {
-        setDirection('horizontal')
-      } else {
-        setDirection('vertical')
-      }
+      setDirection(direction.value === 'vertical' ? 'horizontal' : 'vertical')
     }
 
     return {
@@ -64,4 +60,3 @@ export default {
   font-size: 1em;
 }
 </style>
-

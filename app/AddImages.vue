@@ -1,63 +1,70 @@
 <template>
-  <div v-if="open" class="dialog-overlay" @click="close">
-    <div class="dialog" @click.stop>
-      <div class="dialog-header">
-        <h2>{{ title }}</h2>
-        <button class="close-button" @click="close">×</button>
-      </div>
-      <div class="dialog-content">
-        <h2 class="instructions">There are three options to add image files:</h2>
-        
-        <div class="options-container">
-          <div class="option">
-            <h4>Paste an image from your clipboard</h4>
-            <div class="option-icon">
-              <div class="avatar-large">📋</div>
-            </div>
-          </div>
-          
-          <div 
-            class="option dropzone"
-            :class="{ 'drag-over': isDragOver }"
-            @drop="handleDrop"
-            @dragover.prevent="isDragOver = true"
-            @dragleave="isDragOver = false"
-            @click="triggerFileInput"
-          >
-            <h4>Drag 'n Drop</h4>
-            <div class="dropzone-content">
-              DROP<br/>FILES<br/>HERE
-            </div>
-          </div>
-          
-          <div class="option">
-            <h4>Select an image from your local machine</h4>
-            <button class="select-button" @click="triggerFileInput">
-              SELECT<br/>FILES
-            </button>
-          </div>
+  <Teleport to="body">
+    <div v-if="open" class="dialog-overlay" @click="close">
+      <div class="dialog" @click.stop>
+        <div class="dialog-header">
+          <h2>{{ title }}</h2>
+          <button class="close-button" @click="close" aria-label="Close">×</button>
         </div>
-        
-        <input 
-          ref="fileInput"
-          type="file" 
-          multiple 
-          accept="image/*"
-          style="display: none" 
-          @change="handleFileSelect" 
-        />
+        <div class="dialog-content">
+          <h2 class="instructions">There are three options to add image files:</h2>
+          
+          <div class="options-container">
+            <div class="option">
+              <h4>Paste an image from your clipboard</h4>
+              <div class="option-icon">
+                <div class="avatar-large">📋</div>
+              </div>
+            </div>
+            
+            <div 
+              class="option dropzone"
+              :class="{ 'drag-over': isDragOver }"
+              @drop.prevent="handleDrop"
+              @dragover.prevent="isDragOver = true"
+              @dragleave.prevent="isDragOver = false"
+              @click="triggerFileInput"
+            >
+              <h4>Drag 'n Drop</h4>
+              <div class="dropzone-content">
+                DROP<br/>FILES<br/>HERE
+              </div>
+            </div>
+            
+            <div class="option">
+              <h4>Select an image from your local machine</h4>
+              <button class="select-button" @click="triggerFileInput">
+                SELECT<br/>FILES
+              </button>
+            </div>
+          </div>
+          
+          <input 
+            ref="fileInput"
+            type="file" 
+            multiple 
+            accept="image/*"
+            class="hidden-input"
+            @change="handleFileSelect" 
+          />
+        </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script>
-import { ref, computed, inject } from 'vue'
+import { ref, computed } from 'vue'
+import { Teleport } from 'vue'
+import { usePhotostripStore } from './composables/usePhotostripStore'
 
 const myURL = window.URL || window.webkitURL
 
 export default {
   name: 'AddImages',
+  components: {
+    Teleport
+  },
   props: {
     open: {
       type: Boolean,
@@ -68,27 +75,28 @@ export default {
   setup(props, { emit }) {
     const fileInput = ref(null)
     const isDragOver = ref(false)
-    const images = inject('images')
-    const addFile = inject('addFile')
+    const { images, addFile } = usePhotostripStore()
 
     const title = computed(() => {
       return images.value.length > 0 ? 'Add More Images' : 'Add Images'
     })
 
     const processPic = (pic) => {
+      if (!pic.type.startsWith('image/')) {
+        return false
+      }
       const source = myURL.createObjectURL(pic)
       addFile(pic.name, source)
+      return true
     }
 
     const handleFileSelect = (event) => {
-      for (let i = 0; i < event.target.files.length; i++) {
-        const file = event.target.files[i]
-        if (!file.type.match(/image.*/)) {
+      const files = Array.from(event.target.files)
+      files.forEach((file) => {
+        if (!processPic(file)) {
           alert(`Could not add ${file.name} because it is not a valid image file.`)
-          continue
         }
-        processPic(file)
-      }
+      })
       emit('close')
       if (fileInput.value) {
         fileInput.value.value = ''
@@ -96,13 +104,10 @@ export default {
     }
 
     const handleDrop = (event) => {
-      event.preventDefault()
       isDragOver.value = false
       const files = Array.from(event.dataTransfer.files)
       files.forEach((file) => {
-        if (file.type.match(/image.*/)) {
-          processPic(file)
-        } else {
+        if (!processPic(file)) {
           alert(`Could not add ${file.name} because it is not a valid image file.`)
         }
       })
@@ -110,9 +115,7 @@ export default {
     }
 
     const triggerFileInput = () => {
-      if (fileInput.value) {
-        fileInput.value.click()
-      }
+      fileInput.value?.click()
     }
 
     const close = () => {
@@ -264,5 +267,8 @@ export default {
 .select-button:hover {
   background-color: #1f4a6a;
 }
-</style>
 
+.hidden-input {
+  display: none;
+}
+</style>

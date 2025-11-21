@@ -1,7 +1,7 @@
 <template>
   <div class="display-container">
     <img 
-      v-if="settings.images.length > 0" 
+      v-if="settings && settings.images.length > 0" 
       ref="displayImg"
       :src="displaySrc"
       class="display-image"
@@ -17,34 +17,26 @@
 </template>
 
 <script>
-import { ref, watch, inject, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
+import { usePhotostripStore } from './composables/usePhotostripStore'
 
 export default {
   name: 'Display',
-  props: {
-    settings: {
-      type: Object,
-      required: true
-    },
-    canvas: {
-      type: Object,
-      required: true
-    }
-  },
-  setup(props) {
+  setup() {
     const displayImg = ref(null)
     const displaySrc = ref('')
-    const canvas = props.canvas
+    const { settings, canvas } = usePhotostripStore()
 
     const updateCanvas = () => {
-      if (props.settings.images.length === 0) {
+      const currentSettings = settings.value
+      if (currentSettings.images.length === 0) {
         return
       }
 
       const widths = []
       const heights = []
       
-      props.settings.images.forEach((img) => {
+      currentSettings.images.forEach((img) => {
         if (!img.image.hasAttribute('rel') || img.image.getAttribute('rel') !== 'loaded') {
           setTimeout(() => {
             updateCanvas()
@@ -59,12 +51,12 @@ export default {
         return
       }
 
-      const narrowest = Math.min.apply(null, widths)
-      const shortest = Math.min.apply(null, heights)
+      const narrowest = Math.min(...widths)
+      const shortest = Math.min(...heights)
 
-      let rx = props.settings.margin
-      let ry = props.settings.margin
-      const images = props.settings.images.map((img) => {
+      let rx = currentSettings.margin
+      let ry = currentSettings.margin
+      const imageLayouts = currentSettings.images.map((img) => {
         const obj = {
           image: img.image,
           x: rx,
@@ -72,36 +64,36 @@ export default {
           w: 100,
           h: 100
         }
-        if (props.settings.direction === 'vertical') {
+        if (currentSettings.direction === 'vertical') {
           const fac = narrowest / img.image.width
           obj.w = img.image.width * fac
           obj.h = img.image.height * fac
-          ry += obj.h + props.settings.margin
-        } else if (props.settings.direction === 'horizontal') {
+          ry += obj.h + currentSettings.margin
+        } else if (currentSettings.direction === 'horizontal') {
           const fac = shortest / img.image.height
           obj.w = img.image.width * fac
           obj.h = img.image.height * fac
-          rx += obj.w + props.settings.margin
+          rx += obj.w + currentSettings.margin
         } else {
           return null
         }
         return obj
       })
 
-      if (props.settings.direction === 'vertical') {
-        canvas.width = narrowest + (2 * props.settings.margin)
+      if (currentSettings.direction === 'vertical') {
+        canvas.width = narrowest + (2 * currentSettings.margin)
         canvas.height = ry
-      } else if (props.settings.direction === 'horizontal') {
+      } else if (currentSettings.direction === 'horizontal') {
         canvas.width = rx
-        canvas.height = shortest + (2 * props.settings.margin)
+        canvas.height = shortest + (2 * currentSettings.margin)
       }
 
       const ctx = canvas.getContext('2d')
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.fillStyle = props.settings.color
+      ctx.fillStyle = currentSettings.color
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      images.forEach((img) => {
+      imageLayouts.forEach((img) => {
         if (img) {
           ctx.drawImage(img.image, img.x, img.y, img.w, img.h)
         }
@@ -111,7 +103,7 @@ export default {
     }
 
     watch(
-      () => [props.settings.images, props.settings.color, props.settings.margin, props.settings.direction],
+      () => settings.value,
       () => {
         nextTick(() => {
           updateCanvas()
@@ -126,7 +118,8 @@ export default {
 
     return {
       displayImg,
-      displaySrc
+      displaySrc,
+      settings
     }
   }
 }
