@@ -9,7 +9,7 @@ var base_config = {
     extensions: ['.js', '.vue', '.json']
   },
   resolveLoader: {
-    modules: ['node_modules', path.join(__dirname, 'lib')]
+    modules: ['node_modules']
   },
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
@@ -32,31 +32,11 @@ var base_config = {
         }
       },
       {
-        test: /\.scss$/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              sassOptions: {
-                includePaths: [path.resolve(__dirname, '_scss')]
-              }
-            }
-          }
-        ]
-      },
-      {
         test: /\.css$/,
         use: [
           'vue-style-loader',
           'css-loader'
         ]
-      },
-      { 
-        test: /\.brfs\.js$/,
-        enforce: 'post',
-        loader: "transform-loader?brfs" 
       }
     ]
   }
