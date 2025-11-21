@@ -21,23 +21,20 @@
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
-    "@babel/preset-es2015": "^7.0.0-beta.53",
-    "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.4",
-    "brfs": "^1.4.3",
-    "file-saver": "^2.0.0",
-    "material-ui": "^0.15.4",
-    "react": "15.3.0",
-    "react-canvas": "^1.2.1",
-    "react-color": "^2.14.1",
-    "react-dom": "15.2.1",
-    "react-dropzone": "^7.0.1",
-    "react-tap-event-plugin": "1.0.0",
     "transform-loader": "^0.2.3",
     "uglifyjs-webpack-plugin": "^2.0.1",
+    "vue-loader": "^16.8.3",
+    "vue-style-loader": "^4.1.3",
+    "css-loader": "^5.2.7",
+    "sass-loader": "^10.4.1",
+    "sass": "^1.69.5",
     "webpack": "^4.26.1",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10"
   },
-  "dependencies": {}
+  "dependencies": {
+    "vue": "^3.4.0",
+    "file-saver": "^2.0.0"
+  }
 }

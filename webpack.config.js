@@ -1,29 +1,28 @@
 const webpack = require('webpack');
 const path = require('path');
+const { VueLoaderPlugin } = require('vue-loader');
 
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
-// console.log(">>>>>>>>")
-// console.log(path.resolve(__dirname, "js"))
-// console.log(">>>>>>>>")
-
-
 var base_config = {
   resolve: {
-    extensions: ['.js', '.jsx'],
-    // modules: [path.join(__dirname, 'lib')]
+    extensions: ['.js', '.vue', '.json']
   },
   resolveLoader: {
     modules: ['node_modules', path.join(__dirname, 'lib')]
-  //   root: path.join(__dirname, 'lib')
   },
   plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin()
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new VueLoaderPlugin()
   ],
   module: {
     rules: [
       {
-        test: /\.jsx$/,
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
+        test: /\.js$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -31,6 +30,28 @@ var base_config = {
             presets: ['@babel/preset-env']
           }
         }
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                includePaths: [path.resolve(__dirname, '_scss')]
+              }
+            }
+          }
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'vue-style-loader',
+          'css-loader'
+        ]
       },
       { 
         test: /\.brfs\.js$/,
@@ -75,7 +96,7 @@ if(process.env["NODE_ENV"] == "production") {
 config = [
   Object.assign(
     {
-      entry: './app/app.jsx',
+      entry: './js/main.js',
       output: {
         path: path.resolve(__dirname, "js"),
         publicPath: path.resolve(__dirname, '/js/'),
