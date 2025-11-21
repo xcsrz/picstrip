@@ -2,9 +2,8 @@ const webpack = require('webpack');
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-
 var base_config = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   resolve: {
     extensions: ['.js', '.vue', '.json']
   },
@@ -12,7 +11,6 @@ var base_config = {
     modules: ['node_modules']
   },
   plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(),
     new VueLoaderPlugin()
   ],
   module: {
@@ -50,8 +48,9 @@ if(process.env["NODE_ENV"] == "production") {
           }
         })
     )
+    // Webpack 5 uses terser by default, no need for uglifyjs-webpack-plugin
     base_config.optimization = {
-        minimizer: [new UglifyJsPlugin()]
+        minimize: true
     }
 } else {
     base_config.plugins.push(
@@ -63,12 +62,14 @@ if(process.env["NODE_ENV"] == "production") {
     )
     base_config.devtool = 'inline-source-map'
     base_config.devServer = {
-      contentBase: path.resolve(__dirname),
-      watchContentBase: true,
-      // hot: true,
+      static: {
+        directory: path.resolve(__dirname)
+      },
+      watchFiles: ['**/*'],
       historyApiFallback: true,
-      publicPath: path.resolve(__dirname, '/js/'),
-      proxy: {}
+      devMiddleware: {
+        publicPath: '/js/'
+      }
     }
 }
 

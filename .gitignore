@@ -3,3 +3,4 @@ _site
 node_modules
 *.orig.js
 *.png
+js/app.js
