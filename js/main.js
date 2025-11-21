@@ -6,4 +6,3 @@ window.initiatePhotoStitch = function(element) {
   const app = createApp(App)
   app.mount(element)
 }
-

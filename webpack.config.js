@@ -1,5 +1,6 @@
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const baseConfig = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -10,7 +11,19 @@ const baseConfig = {
     modules: ['node_modules']
   },
   plugins: [
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'index.html',
+          to: 'index.html',
+          transform(content) {
+            // Update script path to be relative when copied to dist directory
+            return content.toString().replace('src="dist/js/app.js"', 'src="js/app.js"')
+          }
+        }
+      ]
+    })
   ],
   module: {
     rules: [
@@ -57,7 +70,7 @@ if (process.env.NODE_ENV === 'production') {
     watchFiles: ['**/*'],
     historyApiFallback: true,
     devMiddleware: {
-      publicPath: '/js/'
+      publicPath: '/dist/'
     }
   }
 }
@@ -66,9 +79,9 @@ const config = {
   ...baseConfig,
   entry: './js/main.js',
   output: {
-    path: path.resolve(__dirname, 'js'),
-    publicPath: '/js/',
-    filename: 'app.js',
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/dist/',
+    filename: 'js/app.js',
     clean: true
   }
 }

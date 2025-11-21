@@ -2,7 +2,7 @@
 node_modules
 
 # Build output
-js/app.js
+dist/
 
 # Legacy files (keeping for reference but not needed)
 *.orig.js
