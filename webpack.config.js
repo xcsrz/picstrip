@@ -44,7 +44,7 @@ const baseConfig = {
       {
         test: /\.css$/,
         use: [
-          'vue-style-loader',
+          'style-loader',
           'css-loader'
         ]
       },
